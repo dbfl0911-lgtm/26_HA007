@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>통합 관제 대시보드 · ROBITA</title>
+  <link rel="stylesheet" href="/static/css/style.css?v={{ asset_ver }}" />
+</head>
+<body>
+  <!-- 상단 바 -->
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> ROBITA</div>
+    <nav class="topnav">
+      <a href="/dashboard" class="active">관제 대시보드</a>
+      <a href="/call">택시 호출</a>
+      <a href="/trips">금일 이용내역</a>
+    </nav>
+    <div class="topbar-right">
+      {% if llm_enabled %}
+        <span class="llm-badge on">● {{ llm_name }} 연결됨 ({{ model }})</span>
+      {% else %}
+        <span class="llm-badge off">● 규칙 기반 모드 (AI 키 미설정)</span>
+      {% endif %}
+      <span class="user">{{ user.name }} 님</span>
+      <a href="/logout" class="btn-pill">로그아웃</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="dash-head">
+      <h1>대시보드</h1>
+      <div class="ts">실시간 갱신 · <span id="last-ts">연결 중…</span></div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- 좌측: 도넛 + 네비 -->
+      <section class="area-side">
+        <div class="card donut-card">
+          <div class="card-title">운행 차량 현황</div>
+          <div class="donut-wrap">
+            <canvas id="donut"></canvas>
+            <div class="donut-center">
+              <div class="num" id="donut-num">–</div>
+              <div class="cap">총 차량</div>
+            </div>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+
+        <div class="card demand-card">
+          <div class="card-title">시간대별 수요</div>
+          <div class="demand-now">
+            <span class="demand-clock" id="sim-clock">--:--</span>
+            <span class="demand-mode" id="sim-mode"></span>
+            <span class="demand-badge" id="demand-badge">수요 –</span>
+          </div>
+          <div class="ratio-row">
+            <div class="ratio-head">
+              <span class="ratio-lbl">운행 비율</span>
+              <span class="ratio-val"><b id="ratio-now">–</b><span class="ratio-goal">목표 <b id="ratio-goal">–</b></span></span>
+            </div>
+            <div class="ratio-bar">
+              <div class="ratio-fill" id="ratio-fill"></div>
+              <div class="ratio-target" id="ratio-target" title="수요 기준 목표 운행 비율"></div>
+            </div>
+          </div>
+          <div class="demand-chart" id="demand-chart"></div>
+          <div class="demand-axis"><span>0시</span><span>6시</span><span>12시</span><span>18시</span><span>24시</span></div>
+        </div>
+
+        <div class="card nav-card">
+          <a class="nav-item" href="/call">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l2-5a2 2 0 012-1h10a2 2 0 012 1l2 5"/><path d="M5 13h14v5H5z"/><circle cx="7.5" cy="18" r="1.3"/><circle cx="16.5" cy="18" r="1.3"/></svg>
+            택시 호출
+            <span class="nav-arrow">→</span>
+          </a>
+          <a class="nav-item" href="/trips">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+            금일 이용내역
+            <span class="nav-arrow">→</span>
+          </a>
+          <div class="nav-item muted" onclick="alert('고객 문의·평가 내역은 데모 범위 밖입니다.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            문의 · 평가 내역
+          </div>
+        </div>
+      </section>
+
+      <!-- 상단 KPI -->
+      <section class="area-kpis">
+        <div class="kpi-row">
+          <div class="card kpi">
+            <div class="label">📅 금일 운항 건수</div>
+            <div class="value" id="kpi-trips">–</div>
+            <div class="delta" id="kpi-trips-d"></div>
+          </div>
+          <div class="card kpi">
+            <div class="label">💰 운행 수익</div>
+            <div class="value" id="kpi-rev">–</div>
+            <div class="delta" id="kpi-rev-d"></div>
+          </div>
+          <div class="card kpi">
+            <div class="label">🚘 등록 차량 수</div>
+            <div class="value" id="kpi-reg">–</div>
+            <div class="delta" id="kpi-reg-d"></div>
+          </div>
+          <div class="card kpi">
+            <div class="label">🟢 운행 차량 수</div>
+            <div class="value" id="kpi-act">–</div>
+            <div class="delta" id="kpi-act-d"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 지도 -->
+      <section class="area-map">
+        <div class="card map-card" style="height:100%;">
+          <div class="map-toolbar">
+            <div class="card-title">실시간 차량 지도</div>
+            <a class="btn-sim ghost" href="/call">＋ 직접 호출하기</a>
+            <button class="btn-sim ghost" id="traffic-btn" title="카카오맵 실시간 교통정보 표시">🚦 도로 혼잡도</button>
+            <button class="btn-sim ghost" id="heat-btn" title="현재 시간대 수요 핫스팟을 지도에 표시">🔥 수요 히트맵</button>
+            <button class="btn-sim ghost" id="surge-jw" title="대기 택시를 정왕역으로 집중 배치(시간대 수요 근거)">🚉 정왕역 집중배치</button>
+            <button class="btn-sim ghost" id="surge-od" title="대기 택시를 한국공학대학교로 집중 배치(시간대 수요 근거)">🎓 한국공대 집중배치</button>
+            <div class="legend-mini traffic-legend" id="traffic-legend" style="display:none;">
+              <span><i style="background:#2db400"></i>원활</span>
+              <span><i style="background:#f5a623"></i>서행</span>
+              <span><i style="background:#e5484d"></i>정체</span>
+            </div>
+            <div class="legend-mini">
+              <span><i style="background:#1b1f33"></i>정상</span>
+              <span><i style="background:#f5b301"></i>주의(≤50%)</span>
+              <span><i style="background:#e5484d"></i>위험(≤30%)</span>
+              <span><i style="background:#36b37e"></i>충전중</span>
+            </div>
+          </div>
+          <div id="map"></div>
+
+          <div class="surge-panel" id="surge-panel" hidden>
+            <div class="sp-head">
+              <span class="sp-title" id="sp-title">집중배치</span>
+              <button class="sp-close" id="sp-close" title="닫기">×</button>
+            </div>
+            <div class="sp-reason" id="sp-reason"></div>
+            <div class="sp-list" id="sp-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 알림 -->
+      <aside class="area-alerts">
+        <div class="card ai-brief-card foldable" data-fold="brief">
+          <div class="card-title">🤖 AI 관제 브리핑
+            <span class="ai-badge" id="ai-engine"></span>
+            <span class="ai-ts" id="ai-ts"></span>
+            <button class="fold-btn" type="button" title="접기/펴기"></button></div>
+          <div class="card-body">
+            <div class="ai-summary" id="ai-summary">상황 분석 중…</div>
+            <div class="ai-block" id="ai-recs-block" style="display:none;">
+              <div class="ai-label">권장 조치</div>
+              <div id="ai-recs"></div>
+            </div>
+            <div class="ai-block" id="ai-anom-block" style="display:none;">
+              <div class="ai-label">이상 징후</div>
+              <div id="ai-anomalies"></div>
+            </div>
+            <div class="ai-block sub-fold" id="ai-balance-block" data-fold="balance" style="display:none;">
+              <div class="ai-label fold-head">⚖️ 수요·공급 균형
+                <span class="fold-cnt" id="ai-balance-cnt"></span>
+                <span class="fold-caret"></span></div>
+              <div class="fold-body"><div id="ai-balance"></div></div>
+            </div>
+            <div class="ai-block sub-fold" id="ai-brief-block" data-fold="rebal" style="display:none;">
+              <div class="ai-label fold-head">🔄 재배치 브리핑
+                <span class="fold-cnt" id="ai-rebal-cnt"></span>
+                <span class="fold-caret"></span></div>
+              <div class="fold-body"><div id="ai-rebal"></div></div>
+            </div>
+          </div>
+        </div>
+        <!-- 상담사 연결(고객 ↔ 관제사) -->
+        <div class="card sup-card foldable" id="sup-card" data-fold="sup">
+          <div class="card-title">💬 상담 요청
+            <span class="sup-badge" id="sup-count">0</span>
+            <button class="fold-btn" type="button" title="접기/펴기"></button></div>
+          <div class="card-body">
+          <div class="sup-list" id="sup-list">
+            <div class="sup-empty">대기 중인 상담이 없습니다.</div>
+          </div>
+          <div class="sup-room" id="sup-room" hidden>
+            <div class="sup-head">
+              <b id="sup-who">고객</b>
+              <span id="sup-meta"></span>
+              <button class="sup-x" id="sup-back">← 목록</button>
+            </div>
+            <div class="sup-log" id="sup-log"></div>
+            <div class="sup-input">
+              <input id="sup-text" placeholder="상담 답변을 입력하세요" autocomplete="off" />
+              <button id="sup-send">보내기</button>
+            </div>
+            <button class="sup-end" id="sup-end">상담 종료</button>
+          </div>
+          </div>
+        </div>
+
+        <div class="card alerts-card foldable" data-fold="alerts">
+          <div class="card-title">🔔 알림
+            <button class="fold-btn" type="button" title="접기/펴기"></button></div>
+          <div class="card-body">
+            <div class="alert-section-title">배터리 임계치 도달</div>
+            <div class="alert-list" id="battery-alerts"></div>
+
+            <div class="alert-section-title">사고 · 방전 발생</div>
+            <div class="alert-list" id="incident-alerts"></div>
+
+            <div class="ai-block sub-fold" data-fold="log">
+              <div class="alert-section-title fold-head">실시간 운영 로그
+                <span class="fold-caret"></span></div>
+              <div class="fold-body"><div class="event-feed" id="event-feed"></div></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- 사고 발생 알림 -->
+  <div class="acc-mask" id="acc-pop" hidden>
+    <div class="acc-card" role="alertdialog" aria-labelledby="acc-title">
+      <div class="acc-ico">!</div>
+      <div class="acc-title" id="acc-title">차량 사고 발생</div>
+      <div class="acc-desc">
+        <span id="acc-line1">-</span><br>
+        사고 내용을 확인하고 필요한 조치를 진행해 주세요.
+      </div>
+      <div class="acc-more" id="acc-more" hidden></div>
+      <div class="acc-btns">
+        <button class="acc-btn ghost" id="acc-close" type="button">닫기</button>
+        <button class="acc-btn primary" id="acc-go" type="button">맵에서 확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 설정 값 주입 -->
+  <script>
+    window.APP = {
+      kakaoKey: "{{ kakao_key }}",
+      center: { lat: {{ center.lat }}, lng: {{ center.lng }} },
+      llmEnabled: {{ 'true' if llm_enabled else 'false' }}
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_key }}&autoload=false"></script>
+  <script src="/static/js/dashboard.js?v={{ asset_ver }}"></script>
+</body>
+</html>

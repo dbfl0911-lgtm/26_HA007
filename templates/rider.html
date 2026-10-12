@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>ROBITA · 로보택시</title>
+<link rel="stylesheet" href="/static/css/rider.css?v={{ asset_ver }}" />
+</head>
+<body>
+<div class="phone">
+
+  <!-- 0. 스플래시 -->
+  <section class="screen splash" id="sc-splash">
+    <div class="splash-inner">
+      <h1>ROBITA</h1>
+      <p>수요 예측 · 배차 · 충전 · 정비 · 사고 대응 까지</p>
+      <p class="sub2">Agentic AI 기반 통합 운영·관제 플랫폼</p>
+    </div>
+  </section>
+
+  <!-- 1. 홈 -->
+  <section class="screen" id="sc-home" hidden>
+    <div class="home-hero">
+      <div class="hero-txt"><span>안녕하세요</span><b>홍길동님</b></div>
+      <div class="hero-avatar">🧑‍💼</div>
+    </div>
+    <div class="card home-card">
+      <div class="f-label">출발지</div>
+      <div class="f-row">
+        <button class="field" id="h-start">📍 <span>장소</span></button>
+        <button class="field small" id="h-time">🕐 <span>지금</span></button>
+      </div>
+      <div class="f-label">도착지</div>
+      <button class="field wide" id="h-end">📍 <span>장소</span></button>
+      <div class="btn-pair">
+        <button class="btn ghost" id="go-reserve">예약하기</button>
+        <button class="btn dark" id="go-call">호출하기</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-t">◈ 실시간 위치</div>
+      <div class="map-box" id="home-map"></div>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 2. 호출 -->
+  <section class="screen" id="sc-call" hidden>
+    <div class="topbar"><button class="back" data-back="home">←</button><h2>로보택시 호출</h2></div>
+    <div class="card">
+      <div class="card-t">◈ 실시간 위치</div>
+      <div class="map-box" id="call-map"></div>
+    </div>
+    <div class="card">
+      <div class="f-label">출발지</div>
+      <div class="f-row">
+        <button class="field" id="c-start">📍 <span>장소</span></button>
+        <button class="field small" id="c-time">🕐 <span>지금</span></button>
+      </div>
+      <div class="f-label">도착지</div>
+      <button class="field wide" id="c-end">📍 <span>장소</span></button>
+      <button class="field via" id="c-via">＋ 경유지</button>
+      <div class="f-label">탑승 인원</div>
+      <button class="field wide" id="c-pax">👤 <span>1명</span></button>
+      <button class="btn dark full" id="c-next">결제수단 선택하기</button>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 3. 결제 확인 -->
+  <section class="screen" id="sc-pay" hidden>
+    <div class="topbar"><button class="back" data-back="call">←</button><h2>결제하기</h2></div>
+    <div class="card">
+      <div class="f-label">출발지</div>
+      <div class="f-row">
+        <div class="field ro" id="p-start">📍 <span>-</span></div>
+        <div class="field small ro" id="p-time">🕐 <span>지금</span></div>
+      </div>
+      <div class="f-label">도착지</div>
+      <div class="field wide ro" id="p-end">📍 <span>-</span></div>
+      <div class="field via ro" id="p-via" hidden>📍 <span></span></div>
+      <div class="f-label">요청 사항</div>
+      <textarea id="p-req" placeholder="예) 캐리어 2개 있어요."></textarea>
+      <div class="f-label">탑승 인원</div>
+      <div class="field wide ro" id="p-pax">👤 <span>1명</span></div>
+      <div class="f-label">결제 수단</div>
+      <button class="field wide" id="p-method">💳 <span>신한 9441</span> <i>⌄</i></button>
+      <div class="est"><span>예상 소요 시간</span><b id="p-eta">–</b></div>
+      <div class="est"><span>결제 예상 금액</span><b id="p-fare">–</b></div>
+      <button class="btn dark full" id="p-go">결제하기</button>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 4. 배정 -->
+  <section class="screen" id="sc-assign" hidden>
+    <div class="topbar"><button class="back" data-back="home">←</button><h2>로보택시 배정</h2></div>
+    <div class="card">
+      <div class="card-t">◈ 실시간 위치</div>
+      <div class="map-box tall" id="assign-map"></div>
+    </div>
+    <div class="card center">
+      <div class="grip"></div>
+      <h3 id="a-title">차량 배정 중…</h3>
+      <p id="a-sub">가까운 로보택시를 찾고 있어요</p>
+      <div class="veh-card">
+        <img src="/static/img/car.png" alt="차량" class="veh-img" />
+        <div class="veh-plate"><b id="a-plate">–</b><span class="badge" id="a-badge">배정중</span></div>
+        <div class="veh-desc">ROBITA 차량 · 완전 자율주행</div>
+        <div class="veh-pay">결제수단 <span id="a-method">신한 9441</span> 등록 완료</div>
+        <button class="btn dark full" id="a-board">차량 문 열기 · 탑승하기</button>
+        <button class="btn dark full" id="a-chat">챗봇문의하기</button>
+        <button class="btn ghost full" id="a-cancel">호출취소하기</button>
+      </div>
+      <div class="info-card">
+        <div class="card-t">이동 정보</div>
+        <div class="irow"><span>출발지</span><b id="a-from">-</b></div>
+        <div class="irow"><span>도착지</span><b id="a-to">-</b></div>
+        <div class="irow"><span>예상 요금</span><b id="a-fare">-</b></div>
+      </div>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 5. AI 채팅 -->
+  <section class="screen chat-screen" id="sc-chat" hidden>
+    <div class="topbar"><button class="back" id="chat-back">←</button><h2 id="chat-title">로보택시 AI 채팅</h2></div>
+    <!-- 운행 중 실시간 위치 (탑승 중에만 표시) -->
+    <div class="ride-map-wrap" id="ride-map-wrap" hidden>
+      <div class="map-box" id="chat-map"></div>
+      <div class="ride-status" id="ride-status">운행 중</div>
+    </div>
+    <div class="chat" id="chat-log"></div>
+    <div class="chat-input">
+      <input id="chat-text" placeholder="채팅을 입력해 주세요." autocomplete="off" />
+      <button id="chat-send">➤</button>
+    </div>
+  </section>
+
+  <!-- 6. 예약 -->
+  <section class="screen" id="sc-reserve" hidden>
+    <div class="topbar"><button class="back" data-back="home">←</button><h2>로보택시 예약</h2></div>
+    <div class="card">
+      <div class="f-label">출발지</div>
+      <div class="f-row">
+        <button class="field" id="r-start">📍 <span>장소</span></button>
+        <button class="field small" id="r-when">🕐 <span>시간</span></button>
+      </div>
+      <div class="f-label">도착지</div>
+      <button class="field wide" id="r-end">📍 <span>장소</span></button>
+      <button class="field via" id="r-via">＋ 경유지</button>
+      <div class="f-label">요청 사항</div>
+      <textarea id="r-req" placeholder="예) 캐리어 2개 있어요."></textarea>
+      <div class="f-label">탑승 인원</div>
+      <button class="field wide" id="r-pax">👤 <span>1명</span></button>
+      <div class="f-label">결제 수단</div>
+      <button class="field wide" id="r-method">💳 <span>신한 9441</span> <i>⌄</i></button>
+      <div class="est"><span>예상 소요 시간</span><b id="r-eta">–</b></div>
+      <div class="est"><span>결제 예상 금액</span><b id="r-fare">–</b></div>
+      <button class="btn dark full" id="r-go">예약하기</button>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 7. 예약 완료 -->
+  <section class="screen" id="sc-rdone" hidden>
+    <div class="topbar"><button class="back" data-back="home">←</button><h2>로보택시 예약 완료</h2></div>
+    <div class="card center">
+      <div class="grip"></div>
+      <h3 id="rd-when">-</h3>
+      <p>차량이 도착할 예정입니다</p>
+      <img src="/static/img/car.png" alt="차량" class="veh-img big" />
+      <div class="veh-plate"><b id="rd-plate">RBX 4281</b><span class="badge blue">배정완료</span></div>
+      <div class="veh-desc">ROBITA 차량 · 완전 자율주행</div>
+      <div class="veh-pay">결제수단 <span id="rd-method">신한 9441</span> 등록 완료</div>
+      <button class="btn ghost full" id="rd-cancel">예약취소하기</button>
+      <div class="info-card">
+        <div class="card-t">이동 정보</div>
+        <div class="irow"><span>출발지</span><b id="rd-from">-</b></div>
+        <div class="irow"><span>도착지</span><b id="rd-to">-</b></div>
+        <div class="irow"><span>예약 시간</span><b id="rd-time">-</b></div>
+      </div>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 8. 알림 -->
+  <section class="screen" id="sc-noti" hidden>
+    <div class="topbar"><h2>알림</h2></div>
+    <div class="card"><div id="noti-list" class="noti-list"><div class="empty">새 알림이 없습니다.</div></div></div>
+    <div class="pad"></div>
+  </section>
+
+  <!-- 9. 마이페이지 -->
+  <section class="screen" id="sc-my" hidden>
+    <div class="topbar"><h2>마이페이지</h2></div>
+    <div class="card my-head">
+      <div class="my-avatar">🧑‍💼</div>
+      <div class="my-name"><b>홍길동님</b><span>ROBITA 회원</span></div>
+    </div>
+    <div class="card">
+      <div class="card-t">이용 기록</div>
+      <div id="my-trips" class="noti-list"><div class="empty">이용 내역이 없습니다.</div></div>
+    </div>
+    <div class="card menu-card">
+      <button class="menu-row" id="my-pay">💳 결제 수단 관리 <i>›</i></button>
+      <button class="menu-row" id="my-ask">💬 문의하기 <i>›</i></button>
+    </div>
+    <div class="pad"></div>
+  </section>
+
+  <button class="ride-return" id="ride-return" hidden>
+    <span class="rr-live"></span>
+    <span class="rr-txt">이용 중인 택시로 돌아가기</span>
+    <span class="rr-go">›</span>
+  </button>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tab active" data-tab="home">🏠</button>
+    <button class="tab" data-tab="noti">🔔</button>
+    <button class="tab" data-tab="my">👤</button>
+  </nav>
+
+  <div class="dim" id="dim" hidden></div>
+  <div class="pop" id="pop" hidden>
+    <h4 id="pop-title">선택</h4>
+    <div id="pop-list"></div>
+    <button class="pop-close" id="pop-close">닫기</button>
+  </div>
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script>
+  // 카카오맵 SDK 로드 성공/실패를 명확히 감지 (실패 시 rider.js 가 안내 문구 표시)
+  window.__KAKAO_SDK__ = "loading";
+</script>
+<script
+  src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&autoload=false"
+  onload="window.__KAKAO_SDK__='ok'"
+  onerror="window.__KAKAO_SDK__='error'"></script>
+<script src="/static/js/rider.js?v={{ asset_ver }}"></script>
+</body>
+</html>

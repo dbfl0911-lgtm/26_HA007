@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 · 로보택시 관제</title>
+  <link rel="stylesheet" href="/static/css/style.css?v={{ asset_ver }}" />
+</head>
+<body>
+  <div class="auth-bg">
+    <div class="auth-card">
+      <div class="auth-brand"><span class="dot"></span> ROBITA</div>
+      <h2>관제 시스템 로그인</h2>
+      <p class="lead">로보택시 운영사 통합 관제 콘솔</p>
+
+      {% if error %}<div class="alert-msg">{{ error }}</div>{% endif %}
+      {% if notice %}<div class="notice-msg">{{ notice }}</div>{% endif %}
+
+      <form method="post" action="/login">
+        <div class="field">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" placeholder="admin@robotaxi.local" required autofocus />
+        </div>
+        <div class="field">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary">로그인</button>
+      </form>
+
+      <div class="auth-foot">
+        계정이 없으신가요? <a href="/signup">회원가입</a>
+      </div>
+      <div class="demo-hint">
+        데모 계정 — admin@robotaxi.local / admin1234
+      </div>
+    </div>
+  </div>
+</body>
+</html>

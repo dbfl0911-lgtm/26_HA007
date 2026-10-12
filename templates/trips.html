@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>금일 이용내역 · ROBITA</title>
+  <link rel="stylesheet" href="/static/css/style.css?v={{ asset_ver }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> ROBITA</div>
+    <nav class="topnav">
+      <a href="/dashboard">관제 대시보드</a>
+      <a href="/call">택시 호출</a>
+      <a href="/trips" class="active">금일 이용내역</a>
+    </nav>
+    <div class="topbar-right">
+      {% if llm_enabled %}
+        <span class="llm-badge on">● {{ llm_name }} 연결됨 ({{ model }})</span>
+      {% else %}
+        <span class="llm-badge off">● 규칙 기반 모드 (AI 키 미설정)</span>
+      {% endif %}
+      <span class="user">{{ user.name }} 님</span>
+      <a href="/logout" class="btn-pill">로그아웃</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="dash-head">
+      <h1>금일 이용내역</h1>
+      <div class="ts">{{ area_name }} · 실시간 갱신 · <span id="trips-ts">불러오는 중…</span></div>
+    </div>
+
+    <!-- 요약 -->
+    <div class="trip-summary" id="trip-summary"></div>
+
+    <!-- 표 -->
+    <div class="card trip-card">
+      <div class="trip-card-head">
+        <div class="card-title">운행 기록</div>
+        <div class="trip-legend">
+          <span class="badge done">완료</span>
+          <span class="badge wait">배차</span>
+          <span class="src manual">수동</span>
+          <span class="src auto">자동</span>
+        </div>
+      </div>
+      <div class="trip-table-wrap">
+        <table class="trip-table">
+          <thead>
+            <tr>
+              <th>시간</th><th>차량</th><th>경로 (출발 → 도착)</th>
+              <th class="r">거리</th><th class="r">요금</th>
+              <th class="c">상태</th><th class="c">구분</th><th class="c">엔진</th>
+            </tr>
+          </thead>
+          <tbody id="trip-body">
+            <tr><td colspan="8" class="empty-hint">불러오는 중…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="/static/js/trips.js?v={{ asset_ver }}"></script>
+</body>
+</html>

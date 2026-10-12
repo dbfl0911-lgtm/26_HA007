@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>택시 호출 · ROBITA</title>
+  <link rel="stylesheet" href="/static/css/style.css?v={{ asset_ver }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> ROBITA</div>
+    <nav class="topnav">
+      <a href="/dashboard">관제 대시보드</a>
+      <a href="/call" class="active">택시 호출</a>
+      <a href="/trips">금일 이용내역</a>
+    </nav>
+    <div class="topbar-right">
+      {% if llm_enabled %}
+        <span class="llm-badge on">● {{ llm_name }} 연결됨 ({{ model }})</span>
+      {% else %}
+        <span class="llm-badge off">● 규칙 기반 모드 (AI 키 미설정)</span>
+      {% endif %}
+      <span class="user">{{ user.name }} 님</span>
+      <a href="/logout" class="btn-pill">로그아웃</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="dash-head">
+      <h1>택시 호출</h1>
+      <div class="ts">{{ area_name }} · 출발지와 목적지를 지정해 배차합니다</div>
+    </div>
+
+    <div class="call-grid">
+      <!-- 좌측: 호출 폼 + 결과 -->
+      <section class="call-left">
+        <div class="card call-form">
+          <div class="card-title">호출 정보</div>
+
+          <div class="field">
+            <label>출발지</label>
+            <select id="origin-sel"><option value="">— 지점 선택 —</option></select>
+            <div class="pick-hint">선택한 출발지: <b id="origin-label">미지정</b></div>
+          </div>
+
+          <div class="swap-row">
+            <button id="swap-btn" class="btn-ghost" title="출발지·목적지 바꾸기">↑↓ 바꾸기</button>
+          </div>
+
+          <div class="field">
+            <label>목적지</label>
+            <select id="dest-sel"><option value="">— 지점 선택 —</option></select>
+            <div class="pick-hint">선택한 목적지: <b id="dest-label">미지정</b></div>
+          </div>
+
+          <div class="field">
+            <label>교통 상황(혼잡도)</label>
+            <select id="traffic-sel">
+              <option value="원활">원활</option>
+              <option value="보통" selected>보통</option>
+              <option value="혼잡">혼잡</option>
+            </select>
+          </div>
+
+          <div class="pick-mode">
+            <span>지도 클릭으로 지정:</span>
+            <button class="pm active" id="pm-origin" data-mode="origin">출발지</button>
+            <button class="pm" id="pm-dest" data-mode="dest">목적지</button>
+          </div>
+
+          <button id="call-btn" class="btn-call" disabled>호출하기</button>
+          <div class="form-note" id="form-note">출발지와 목적지를 모두 선택하면 호출할 수 있습니다.</div>
+        </div>
+
+        <!-- 배차 결과 -->
+        <div class="card result-card" id="result" style="display:none;">
+          <div class="card-title">배차 결과</div>
+          <div id="result-body"></div>
+        </div>
+      </section>
+
+      <!-- 우측: 지도 -->
+      <section class="call-map-wrap">
+        <div class="card map-card" style="height:100%;">
+          <div class="map-toolbar">
+            <div class="card-title">경로 미리보기</div>
+            <button class="btn-sim ghost" id="traffic-btn" title="카카오맵 실시간 교통정보 표시">🚦 도로 혼잡도</button>
+            <div class="legend-mini">
+              <span><i style="background:#0a0e27"></i>출발</span>
+              <span><i style="background:#e5484d"></i>도착</span>
+              <span><i style="background:#2db400"></i>원활</span>
+              <span><i style="background:#f5a623"></i>서행</span>
+              <span><i style="background:#e5484d"></i>정체</span>
+            </div>
+          </div>
+          <div id="call-map"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    window.APP = {
+      kakaoKey: "{{ kakao_key }}",
+      center: { lat: {{ center.lat }}, lng: {{ center.lng }} }
+    };
+  </script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_key }}&autoload=false"></script>
+  <script src="/static/js/call.js?v={{ asset_ver }}"></script>
+</body>
+</html>

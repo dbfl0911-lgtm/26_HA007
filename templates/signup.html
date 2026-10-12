@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원가입 · 로보택시 관제</title>
+  <link rel="stylesheet" href="/static/css/style.css?v={{ asset_ver }}" />
+</head>
+<body>
+  <div class="auth-bg">
+    <div class="auth-card">
+      <div class="auth-brand"><span class="dot"></span> ROBITA</div>
+      <h2>운영자 회원가입</h2>
+      <p class="lead">관제 콘솔에 접근할 운영자 계정을 만듭니다.</p>
+
+      {% if error %}<div class="alert-msg">{{ error }}</div>{% endif %}
+
+      <form method="post" action="/signup">
+        <div class="field">
+          <label for="name">이름</label>
+          <input type="text" id="name" name="name" placeholder="홍길동" required autofocus />
+        </div>
+        <div class="field">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" placeholder="you@company.com" required />
+        </div>
+        <div class="field">
+          <label for="password">비밀번호 (6자 이상)</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+        <div class="field">
+          <label for="password2">비밀번호 확인</label>
+          <input type="password" id="password2" name="password2" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary">가입하기</button>
+      </form>
+
+      <div class="auth-foot">
+        이미 계정이 있으신가요? <a href="/login">로그인</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

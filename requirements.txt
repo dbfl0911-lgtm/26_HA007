@@ -1,0 +1,17 @@
+# ── 로보택시 통합관제 대시보드 의존성 ──────────────────────────
+# 설치:  pip install -r requirements.txt
+#
+# 파이참(PyCharm)에서는 이 파일을 열면 우측 상단에
+# "Install requirements" 알림이 떠서 클릭 한 번으로 설치할 수 있습니다.
+
+fastapi>=0.115.6           # 웹 백엔드 (수행계획서: Python FastAPI)
+uvicorn[standard]>=0.34.0  # ASGI 서버 + WebSocket 지원
+jinja2>=3.1.4              # HTML 템플릿 렌더링
+python-multipart>=0.0.18   # 로그인/회원가입 폼 처리
+itsdangerous>=2.2.0        # 세션 쿠키 서명 (로그인 유지)
+google-genai>=1.2.0        # Gemini LLM (차량배정/위험분석/경로탐색)
+
+# 참고:
+#  - 버전은 '>=' (최소 버전)로 두어, 최신 파이썬에서도 호환되는 버전이 설치됩니다.
+#  - google-genai 는 키가 없으면 호출되지 않으므로, 설치만 해도 무방합니다.
+#  - 키 없이 규칙 기반으로만 쓸 경우 이 줄을 빼도 앱은 실행됩니다.

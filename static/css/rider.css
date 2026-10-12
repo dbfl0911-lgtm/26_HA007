@@ -1,0 +1,217 @@
+/* ROBITA 고객 앱 — 모바일 전용 스타일 */
+:root{
+  --navy:#0B1335; --ink:#1D2233; --sub:#6F7280; --line:#E3E5EB;
+  --bg:#F7F7F7; --blue:#2F6FED; --green:#36B37E; --red:#E5484D;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif}
+body{background:#0b1020;display:flex;justify-content:center}
+
+.phone{position:relative;width:100%;max-width:430px;height:100vh;height:100dvh;
+  background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+
+/* 화면 */
+.screen{position:absolute;inset:0;bottom:64px;overflow-y:auto;padding:0 20px;
+  -webkit-overflow-scrolling:touch;animation:fade .18s ease}
+.screen[hidden]{display:none}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+.pad{height:26px}
+
+/* 스플래시 */
+.splash{background:linear-gradient(160deg,#0a1030,#132049 60%,#1b2f6b);
+  display:flex;align-items:center;justify-content:center;bottom:0;padding:0}
+.splash-inner{text-align:center;color:#fff}
+.splash-inner h1{font-size:42px;letter-spacing:2px;margin:0 0 12px;font-style:italic}
+.splash-inner p{margin:3px 0;font-size:12.5px;color:#c9d2ee}
+.splash-inner .sub2{font-size:11.5px;color:#9fb0dd}
+
+/* 상단바 */
+.topbar{display:flex;align-items:center;gap:10px;padding:26px 0 14px}
+.topbar h2{font-size:19px;margin:0;color:var(--ink)}
+.back{background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink);padding:0 2px}
+
+/* 홈 히어로 */
+.home-hero{position:relative;margin:0 -20px;padding:34px 24px 46px;
+  background:linear-gradient(150deg,#0d1738,#1a2a5e);color:#fff;
+  border-radius:0 0 26px 26px;display:flex;align-items:center}
+.hero-txt span{display:block;font-size:15px;opacity:.85}
+.hero-txt b{display:block;font-size:25px;margin-top:2px}
+.hero-avatar{margin-left:auto;width:56px;height:56px;border-radius:50%;
+  background:#dfe6f7;display:flex;align-items:center;justify-content:center;font-size:28px}
+
+/* 카드 */
+.card{background:#fff;border-radius:20px;padding:18px;margin:14px 0;
+  box-shadow:0 4px 16px rgba(11,19,53,.07)}
+.home-card{margin-top:-26px}
+.card.center{text-align:center}
+.card-t{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:10px}
+.grip{width:44px;height:4px;background:var(--line);border-radius:8px;margin:2px auto 16px}
+.card.center h3{font-size:21px;margin:0 0 4px;color:var(--navy)}
+.card.center p{margin:0 0 16px;font-size:15px;color:var(--sub)}
+
+/* 입력 필드 */
+.f-label{font-size:13px;color:var(--ink);margin:12px 0 8px;font-weight:600}
+.f-row{display:flex;gap:8px}
+.field{flex:1;display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);
+  border-radius:11px;padding:13px 13px;font-size:14px;color:var(--ink);cursor:pointer;text-align:left}
+.field span{color:var(--sub)}
+.field.filled span{color:var(--ink);font-weight:600}
+.field.small{flex:0 0 42%}
+.field.wide{width:100%}
+.field.via{width:auto;color:var(--sub);margin-top:9px;font-size:13.5px;padding:11px 14px}
+.field.ro{cursor:default;background:#fafbfd}
+.field i{margin-left:auto;color:var(--sub);font-style:normal}
+textarea{width:100%;min-height:64px;border:1px solid var(--line);border-radius:11px;
+  padding:12px;font-size:14px;resize:none;font-family:inherit;outline:none}
+textarea:focus{border-color:var(--blue)}
+
+/* 버튼 */
+.btn{border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer}
+.btn.dark{background:var(--navy);color:#fff}
+.btn.dark:active{background:#182247}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.full{width:100%;margin-top:12px}
+.btn-pair{display:flex;gap:10px;margin-top:18px}
+.btn-pair .btn{flex:1}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* 예상 정보 */
+.est{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:14px}
+.est span{color:var(--sub)}
+.est b{color:var(--ink);font-size:15px}
+
+/* 지도 */
+.map-box{width:100%;height:190px;border-radius:14px;background:#dfe4ee;overflow:hidden}
+.map-box.tall{height:240px}
+
+/* 차량 카드 */
+.veh-card{border:1px solid var(--line);border-radius:18px;padding:20px 16px;margin-top:6px}
+.veh-img{width:120px;transform:rotate(-28deg);margin:6px 0 14px}
+.veh-img.big{width:150px}
+.veh-plate{display:flex;align-items:center;justify-content:center;gap:8px}
+.veh-plate b{font-size:24px;color:var(--navy);letter-spacing:1px}
+.badge{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:8px;background:#e7ebf3;color:var(--sub)}
+.badge.blue,.badge.on{background:var(--blue);color:#fff}
+.veh-desc{font-size:14px;color:var(--ink);margin-top:5px}
+.veh-pay{font-size:12px;color:var(--sub);margin:6px 0 14px}
+
+.info-card{border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:16px;text-align:left}
+.irow{display:flex;justify-content:space-between;font-size:13.5px;margin-top:9px}
+.irow span{color:var(--sub)}
+.irow b{color:var(--ink)}
+
+/* 채팅 */
+.chat-screen{display:flex;flex-direction:column;padding:0 0 0;bottom:64px}
+.chat-screen .topbar{padding:26px 20px 12px;flex:0 0 auto}
+.chat{flex:1;overflow-y:auto;padding:6px 18px 12px;display:flex;flex-direction:column;gap:10px}
+.bubble{max-width:82%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.bubble.bot{align-self:flex-start;background:#F1F2F6;color:var(--ink);border-bottom-left-radius:5px}
+.bubble.me{align-self:flex-end;background:var(--navy);color:#fff;border-bottom-right-radius:5px}
+.bubble.sys{align-self:center;background:#fff6e6;color:#7a5a12;font-size:12.5px;border-radius:10px}
+.bubble img,.bubble .rmap{width:100%;border-radius:12px;margin-top:6px}
+.choices{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;padding:2px 0}
+.choice{background:var(--navy);color:#fff;border:none;border-radius:12px;padding:11px 15px;
+  font-size:13.5px;font-weight:700;cursor:pointer}
+.choice.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.choice:active{opacity:.85}
+.typing{align-self:flex-start;color:var(--sub);font-size:13px;padding:2px 6px}
+.chat-input{flex:0 0 auto;display:flex;gap:8px;padding:10px 16px 14px;background:var(--bg);border-top:1px solid var(--line)}
+.chat-input input{flex:1;border:1px solid var(--line);border-radius:22px;padding:13px 16px;font-size:14px;outline:none}
+.chat-input input:focus{border-color:var(--blue)}
+.chat-input button{width:46px;height:46px;border:none;border-radius:50%;background:var(--navy);
+  color:#fff;font-size:17px;cursor:pointer}
+
+/* 미니 경로 지도(채팅 내) */
+.rmap{height:130px;background:#e8ecf4;border-radius:12px;overflow:hidden;position:relative}
+.rmap .tagm{position:absolute;background:var(--navy);color:#fff;font-size:11px;font-weight:700;
+  padding:3px 8px;border-radius:8px}
+
+/* 영수증 */
+.receipt{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-size:13px}
+.receipt h4{margin:0 0 4px;font-size:16px;color:var(--navy);display:flex;align-items:center;gap:6px}
+.receipt .rdate{text-align:right;font-size:11.5px;color:var(--sub);margin-top:-18px}
+.receipt .sect{font-weight:800;margin:14px 0 6px;color:var(--ink);font-size:13.5px}
+.receipt .rrow{display:flex;justify-content:space-between;margin:6px 0;color:var(--sub)}
+.receipt .rrow b{color:var(--ink);font-weight:600}
+.receipt .rrow.hl b,.receipt .rrow.hl span{color:var(--blue);font-weight:800}
+.receipt hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+
+/* 알림 · 마이페이지 */
+.noti-list{display:flex;flex-direction:column;gap:9px}
+.noti{background:#f6f8fc;border-radius:11px;padding:11px 13px;font-size:13px;color:var(--ink);
+  border-left:3px solid var(--blue)}
+.noti.warn{border-left-color:var(--red);background:#fdf3f3}
+.noti .nt{font-size:11px;color:var(--sub);margin-top:3px}
+.empty{color:#9aa3b5;font-size:13px;padding:6px 2px}
+.my-head{display:flex;align-items:center;gap:14px}
+.my-avatar{width:52px;height:52px;border-radius:50%;background:#dfe6f7;
+  display:flex;align-items:center;justify-content:center;font-size:26px}
+.my-name b{display:block;font-size:16px;color:var(--ink)}
+.my-name span{font-size:12px;color:var(--sub)}
+.menu-card{padding:6px}
+.menu-row{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;
+  padding:15px 12px;font-size:14.5px;color:var(--ink);cursor:pointer;text-align:left}
+.menu-row i{margin-left:auto;font-style:normal;color:var(--sub)}
+.menu-row+.menu-row{border-top:1px solid var(--line)}
+
+/* 하단 탭 */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:64px;background:#fff;
+  border-top:1px solid var(--line);display:flex;align-items:center;z-index:20}
+.tab{flex:1;background:none;border:none;font-size:22px;opacity:.35;cursor:pointer}
+.tab.active{opacity:1}
+
+/* 팝업 */
+.dim{position:absolute;inset:0;background:rgba(10,16,40,.45);z-index:30}
+.pop{position:absolute;left:26px;right:26px;top:50%;transform:translateY(-50%);
+  background:#fff;border-radius:18px;padding:22px 20px 12px;z-index:31;max-height:70%;overflow-y:auto}
+.pop h4{margin:0 0 14px;font-size:18px;color:var(--navy)}
+.pop-item{width:100%;background:none;border:none;padding:14px 4px;font-size:15px;
+  color:var(--blue);cursor:pointer;font-weight:600}
+.pop-item+.pop-item{border-top:1px solid #f1f2f6}
+.pop-close{display:block;margin-left:auto;background:none;border:none;color:var(--sub);
+  font-size:14px;padding:12px 4px;cursor:pointer}
+
+/* 토스트 */
+.toast{position:absolute;left:26px;right:26px;top:22px;z-index:40;background:var(--navy);
+  color:#fff;border-radius:12px;padding:14px 16px;font-size:14px;text-align:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.3)}
+
+/* 채팅 화면 상단 실시간 지도 (탑승 중) */
+.ride-map-wrap{position:relative;flex:0 0 auto;padding:0 18px 10px}
+.ride-map-wrap .map-box{height:150px}
+.ride-status{position:absolute;left:26px;top:10px;background:rgba(11,19,53,.86);color:#fff;
+  font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:9px;z-index:5}
+
+/* 지도 로드 실패 안내 */
+.map-box.fail{display:flex;align-items:center;justify-content:center;text-align:center;
+  color:#8a93a6;font-size:12px;line-height:1.5;padding:10px}
+
+/* 대형(SUV) 택시 이미지 — 세단보다 크게 */
+.veh-img.suv{width:145px}
+.veh-img.big.suv{width:175px}
+
+/* 차량 도착 시 탑승 버튼 강조 */
+@keyframes pulseBtn{0%,100%{box-shadow:0 0 0 0 rgba(47,111,237,.5)}50%{box-shadow:0 0 0 10px rgba(47,111,237,0)}}
+.btn.pulse{animation:pulseBtn 1.4s ease-out infinite}
+
+/* 이용 중인 택시로 돌아가기 — 운행 중 다른 화면으로 이동했을 때 탭바 위에 뜨는 복귀 배너 */
+.ride-return{position:absolute;left:12px;right:12px;bottom:74px;z-index:19;
+  display:flex;align-items:center;gap:10px;width:calc(100% - 24px);
+  background:var(--navy);color:#fff;border:none;border-radius:14px;
+  padding:12px 14px;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left;
+  box-shadow:0 8px 20px rgba(11,19,53,.38)}
+.ride-return[hidden]{display:none}
+.ride-return .rr-live{width:9px;height:9px;border-radius:50%;background:#36d399;flex:0 0 auto;
+  animation:rrpulse 1.4s infinite}
+.ride-return .rr-txt{flex:1}
+.ride-return .rr-go{font-size:20px;line-height:1;opacity:.85}
+@keyframes rrpulse{0%{box-shadow:0 0 0 0 rgba(54,211,153,.6)}
+  70%{box-shadow:0 0 0 8px rgba(54,211,153,0)}100%{box-shadow:0 0 0 0 rgba(54,211,153,0)}}
+
+/* 경로 카드 미니맵 — .rmap 안을 꽉 채우는 카카오 지도 캔버스 (태그는 지도 위에) */
+.rmap-canvas{width:100%;height:130px}
+.rmap .tagm{z-index:5}
+/* 지도 카드 전용 말풍선 — 빈 지도 div 는 내재 너비가 없어 flex 안에서 찌그러지므로
+   말풍선에 확정 너비(82%)를 줘서 지도 캔버스가 제대로 된 크기를 갖게 한다. */
+.bubble.map{width:82%;max-width:82%;padding:0;background:transparent;border-radius:12px;white-space:normal}
+.bubble.map .rmap{margin-top:0}

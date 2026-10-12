@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>ROBITA · 데모 제어</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #0a0e27; color: #e7ebf5; min-height: 100vh; padding: 20px 14px 44px; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  .head { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; }
+  .logo { width: 11px; height: 11px; border-radius: 50%; background: #36b37e; box-shadow: 0 0 10px #36b37e; }
+  h1 { font-size: 19px; margin: 0; letter-spacing: .4px; }
+  .sub { color: #8b93ad; font-size: 12px; margin: 0 0 16px; }
+
+  .bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #121737; border: 1px solid #232a52; border-radius: 12px; padding: 10px 12px; margin-bottom: 16px; }
+  .bar label { font-size: 12px; color: #9aa2bd; font-weight: 700; }
+  .bar input { flex: 1; min-width: 160px; padding: 8px 10px; font-size: 13px;
+    background: #0c1130; border: 1px solid #2b3360; border-radius: 8px; color: #e7ebf5; }
+  .conn { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9aa2bd; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #5b6488; }
+  .dot.on { background: #36b37e; box-shadow: 0 0 8px #36b37e; }
+  .dot.off { background: #e5484d; box-shadow: 0 0 8px #e5484d; }
+
+  .card { background: #121737; border: 1px solid #232a52; border-radius: 14px; padding: 16px; margin-bottom: 15px; }
+  .card h2 { font-size: 14px; margin: 0 0 12px; color: #c7cee6; }
+  .now { font-size: 13px; color: #9aa2bd; margin-bottom: 12px; }
+  .now b { font-size: 19px; color: #fff; margin: 0 5px; font-variant-numeric: tabular-nums; }
+  .mode { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #0e1433; color: #9aa2bd; }
+  .lbl { font-size: 12px; font-weight: 800; color: #9aa2bd; margin: 13px 0 7px; }
+  .row { display: flex; gap: 8px; }
+  .row input[type=time] { flex: 1; padding: 10px 12px; font-size: 14px; background: #0c1130;
+    border: 1px solid #2b3360; border-radius: 9px; color: #e7ebf5; }
+  .go { padding: 10px 18px; border: none; border-radius: 9px; background: #2f6fed; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { padding: 9px 13px; border: 1.5px solid #2b3360; border-radius: 9px; background: #0e1433;
+    color: #e7ebf5; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn:hover { border-color: #2f6fed; }
+  .btn.hold { border-color: #e5742a; color: #ffb877; }
+  .btn.live { border-color: #2fae6a; color: #6ee7a8; }
+  .btn.dow { min-width: 46px; }
+  .btn.dow.hot { border-color: #e5a72a; color: #ffd489; }
+  .btn.live:hover { border-color: #36b37e; }
+  select { width: 100%; padding: 11px 12px; font-size: 14px; background: #0c1130;
+    border: 1px solid #2b3360; border-radius: 10px; color: #e7ebf5; margin-bottom: 14px; }
+  .events { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ev { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 15px 12px;
+    border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 800; color: #e7ebf5; border: 1.5px solid #2b3360; background: #0e1433; }
+  .ev .ico { font-size: 19px; }
+  .ev.accident:hover { border-color: #e5484d; }
+  .ev.drain:hover { border-color: #2f6fed; }
+  .ev.surge:hover { border-color: #36b37e; }
+  .ev:disabled { opacity: .5; cursor: default; }
+  .hint { margin: 13px 0 0; font-size: 11.5px; color: #7c84a0; }
+
+  .log { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+  .empty { color: #6f7798; font-size: 13px; padding: 6px 2px; }
+  .lrow { display: flex; gap: 10px; align-items: baseline; padding: 9px 11px; border-radius: 9px;
+    background: #0e1433; font-size: 13px; border-left: 3px solid #3b4675; }
+  .lrow.ok { border-left-color: #36b37e; }
+  .lrow.fail { border-left-color: #e5484d; background: #1c1233; }
+  .t { font-size: 11px; color: #8089a6; font-variant-numeric: tabular-nums; flex: 0 0 auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head"><span class="logo"></span><h1>ROBITA 데모 제어</h1></div>
+  <p class="sub">별도 기기에서 조작하면 관제 대시보드에 즉시 반영됩니다.</p>
+
+  <div class="bar">
+    <label for="base">서버 주소</label>
+    <input id="base" placeholder="http://192.168.0.10:8000" />
+    <span class="conn"><span id="conn" class="dot"></span><span id="conn-t">연결 확인 중…</span></span>
+  </div>
+
+  <section class="card">
+    <h2>⏱ 시간 제어</h2>
+    <div class="now">현재 가상시각 <b id="clock">--:--</b> <span class="mode" id="mode"></span></div>
+
+    <div class="lbl">시간 이동 (그 시각으로 고정)</div>
+    <div class="row">
+      <input type="time" id="time" />
+      <button class="go" id="go">이동</button>
+    </div>
+    <div class="steps" style="margin-top:8px;">
+      <button class="btn step" data-step="-60">− 1시간</button>
+      <button class="btn step" data-step="-30">− 30분</button>
+      <button class="btn step" data-step="30">+ 30분</button>
+      <button class="btn step" data-step="60">+ 1시간</button>
+    </div>
+
+    <div class="lbl">시간 배속</div>
+    <div class="steps">
+      <button class="btn live" data-live="1">🕒 실시간</button>
+      <button class="btn speed" data-speed="2">⏩ ×2</button>
+      <button class="btn speed" data-speed="4">⏩ ×4</button>
+      <button class="btn speed" data-speed="8">⏩ ×8</button>
+      <button class="btn hold" data-pause="1">⏸ 고정</button>
+    </div>
+    <p class="hint">실시간은 지금 시각에 맞춰 수요가 흐릅니다. 시각을 이동하면 그 시각에 고정돼 수요가 고정되고, 배속은 시간을 빠르게 흘려보냅니다.</p>
+    <div class="lbl" style="margin-top:14px;">요일 (수요 패턴)</div>
+    <div class="steps">
+      <button class="btn dow" data-dow="0">월</button>
+      <button class="btn dow" data-dow="1">화</button>
+      <button class="btn dow" data-dow="2">수</button>
+      <button class="btn dow" data-dow="3">목</button>
+      <button class="btn dow hot" data-dow="4">금 🍻</button>
+      <button class="btn dow hot" data-dow="5">토</button>
+      <button class="btn dow" data-dow="6">일</button>
+      <button class="btn dow" data-dow="-1">실제</button>
+    </div>
+    <p class="hint">금·토 저녁은 회식·유흥 수요가 급증해 먹자골목·아브뉴프랑으로 택시가 몰립니다.</p>
+  </section>
+
+  <section class="card">
+    <h2>🚕 택시 이벤트</h2>
+    <div class="lbl">대상 택시</div>
+    <select id="vehicle"><option value="">랜덤 (자동 선택)</option></select>
+    <div class="events">
+      <button class="ev accident" data-kind="accident"><span class="ico">🚨</span> 사고 발생</button>
+      <button class="ev drain" data-kind="drain"><span class="ico">🪫</span> 배터리 방전</button>
+    </div>
+    <p class="hint">택시를 고르면 그 차량에, 안 고르면 운행·대기 중 차량에서 자동으로 적용해요.</p>
+  </section>
+
+  <section class="card">
+    <h2>📍 수요 집중배치</h2>
+    <div class="events">
+      <button class="ev surge" data-point="정왕역"><span class="ico">🚉</span> 정왕역 집중배치</button>
+      <button class="ev surge" data-point="오이도역"><span class="ico">🌊</span> 오이도역 집중배치</button>
+    </div>
+    <p class="hint">대기 택시를 해당 지점으로 사전배치합니다. 배치 대수는 <b>현재 수요·시간대</b>에 근거해 자동 산정돼요. (예: 출퇴근 피크엔 많이, 한산할 땐 적게)</p>
+  </section>
+
+  <section class="card">
+    <h2>발생 로그</h2>
+    <div id="log" class="log"><div class="empty">아직 발생시킨 이벤트가 없습니다.</div></div>
+  </section>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const KEY = "robota_ctl_base";
+  function defaultBase() {
+    if (location.protocol === "http:" || location.protocol === "https:") return location.origin;
+    return "http://localhost:8000";
+  }
+  let base = localStorage.getItem(KEY) || defaultBase();
+  $("base").value = base;
+  function applyBase() {
+    base = ($("base").value || "").trim().replace(/\/+$/, "") || defaultBase();
+    $("base").value = base;
+    try { localStorage.setItem(KEY, base); } catch (e) {}
+    refresh();
+  }
+  function setConn(ok) {
+    $("conn").className = "dot " + (ok ? "on" : "off");
+    $("conn-t").textContent = ok ? "연결됨" : "서버 응답 없음";
+  }
+  function modeText(c) {
+    if (!c) return "";
+    if (c.realtime) return "🕒 실시간";
+    if (c.paused) return "⏸ 고정";
+    return c.scale && c.scale !== 1 ? "⏩ ×" + c.scale : "▶ 진행중";
+  }
+  function addLog(ok, msg) {
+    const empty = $("log").querySelector(".empty");
+    if (empty) empty.remove();
+    const t = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+    const row = document.createElement("div");
+    row.className = "lrow " + (ok ? "ok" : "fail");
+    row.innerHTML = '<span class="t">' + t + '</span><span>' + msg + '</span>';
+    $("log").prepend(row);
+  }
+  async function refresh() {
+    try {
+      const d = await (await fetch(base + "/api/console/vehicles")).json();
+      setConn(true);
+      if (d.clock) { $("clock").textContent = d.clock.sim_time || "--:--"; $("mode").textContent = modeText(d.clock); }
+      const cur = $("vehicle").value;
+      $("vehicle").innerHTML = '<option value="">랜덤 (자동 선택)</option>' +
+        (d.vehicles || []).map((v) =>
+          '<option value="' + v.id + '">' + v.id + ' · ' + v.plate + ' — ' + v.status_label + ' · 🔋' + v.battery + '%</option>'
+        ).join("");
+      $("vehicle").value = cur;
+    } catch (e) { setConn(false); }
+  }
+  async function post(path, body) {
+    const r = await fetch(base + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    return r.json();
+  }
+  async function timeAction(body, label) {
+    try {
+      const res = await post("/api/console/time", body);
+      setConn(true);
+      if (res && res.sim_time) { $("clock").textContent = res.sim_time; $("mode").textContent = modeText(res);
+        addLog(true, label + " → " + res.sim_time + " (" + modeText(res) + ")"); }
+      refresh();
+    } catch (e) { setConn(false); addLog(false, "요청 실패 — 서버 주소 확인"); }
+  }
+  $("go").addEventListener("click", () => {
+    const v = $("time").value;
+    if (!v) { addLog(false, "이동할 시각을 입력하세요."); return; }
+    const p = v.split(":").map(Number);
+    timeAction({ action: "set", value: p[0] * 60 + p[1] }, "시각 이동 " + v);
+  });
+  document.querySelectorAll(".step").forEach((b) =>
+    b.addEventListener("click", () => timeAction({ action: "step", value: Number(b.dataset.step) }, b.textContent.trim())));
+  document.querySelectorAll(".speed").forEach((b) =>
+    b.addEventListener("click", () => timeAction({ action: "speed", value: Number(b.dataset.speed) }, "배속 ×" + b.dataset.speed)));
+  document.querySelector(".hold").addEventListener("click", () => timeAction({ action: "pause" }, "시간 고정"));
+  document.querySelector(".live").addEventListener("click", () => timeAction({ action: "realtime" }, "실시간"));
+  document.querySelectorAll(".dow").forEach((b) =>
+    b.addEventListener("click", () => {
+      const v = parseInt(b.dataset.dow, 10);
+      timeAction({ action: "dow", value: v }, v < 0 ? "실제 요일" : b.textContent.trim() + "요일");
+    }));
+  document.querySelectorAll(".ev:not(.surge)").forEach((b) =>
+    b.addEventListener("click", async () => {
+      b.disabled = true;
+      try {
+        const res = await post("/api/console/event", { kind: b.dataset.kind, vehicle_id: $("vehicle").value || null });
+        setConn(true);
+        addLog(!!res.ok, res.msg || (res.ok ? "완료" : "처리할 수 없습니다."));
+        refresh();
+      } catch (e) { setConn(false); addLog(false, "요청 실패 — 서버 주소 확인"); }
+      finally { b.disabled = false; }
+    }));
+  document.querySelectorAll(".surge").forEach((b) =>
+    b.addEventListener("click", async () => {
+      b.disabled = true;
+      try {
+        const res = await post("/api/console/surge", { point: b.dataset.point });
+        setConn(true);
+        if (res.ok) addLog(res.count > 0, res.count > 0 ? (res.point + " → " + res.reason) : (res.reason || "이동 가능한 대기 차량이 없습니다."));
+        else addLog(false, res.msg || "처리할 수 없습니다.");
+        refresh();
+      } catch (e) { setConn(false); addLog(false, "요청 실패 — 서버 주소 확인"); }
+      finally { b.disabled = false; }
+    }));
+  $("base").addEventListener("change", applyBase);
+  refresh();
+  setInterval(refresh, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카카오맵 진단</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;margin:0;padding:20px;background:#f4f6fb;color:#1a1f33}
+  .wrap{max-width:640px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:#6b7488;font-size:13px;margin:0 0 18px}
+  .card{background:#fff;border:1px solid #e7ebf3;border-radius:14px;padding:16px;margin-bottom:14px}
+  .row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f3f8;font-size:14px}
+  .row:last-child{border-bottom:none}
+  .row b{margin-left:auto;font-variant-numeric:tabular-nums}
+  .ok{color:#1f7a52;font-weight:800}
+  .bad{color:#e5484d;font-weight:800}
+  .wait{color:#8a93a6;font-weight:700}
+  #map{width:100%;height:260px;border-radius:12px;background:#dfe4ee}
+  .fix{background:#fff8ef;border:1px solid #ffd9bf;border-radius:12px;padding:14px;font-size:13.5px;line-height:1.6}
+  .fix b{color:#b85a15}
+  code{background:#eef1f6;padding:2px 6px;border-radius:5px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🗺️ 카카오맵 진단</h1>
+  <p class="sub">지도가 안 보이는 원인을 자동으로 찾아드립니다.</p>
+
+  <div class="card">
+    <div class="row">현재 접속 주소 <b id="host">-</b></div>
+    <div class="row">JS 키 전달됨 <b id="key" class="wait">확인 중…</b></div>
+    <div class="row">SDK 스크립트 로드 <b id="sdk" class="wait">확인 중…</b></div>
+    <div class="row">지도 생성 <b id="mapok" class="wait">확인 중…</b></div>
+  </div>
+
+  <div class="card"><div id="map"></div></div>
+  <div class="fix" id="fix">진단 중…</div>
+</div>
+
+<script>
+  window.__SDK__ = "loading";
+  var KEY = "{{ kakao_js_key }}";
+</script>
+<script
+  src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_js_key }}&autoload=false"
+  onload="window.__SDK__='ok'" onerror="window.__SDK__='error'"></script>
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var host = location.host;
+  $("host").textContent = host;
+
+  function set(id, ok, txt) {
+    var el = $(id);
+    el.textContent = txt;
+    el.className = ok === true ? "ok" : ok === false ? "bad" : "wait";
+  }
+  function fix(html) { $("fix").innerHTML = html; }
+
+  set("key", KEY && KEY.length > 20, KEY ? (KEY.slice(0, 8) + "… (" + KEY.length + "자)") : "없음");
+
+  function step2(tries) {
+    tries = tries || 0;
+    if (window.kakao && window.kakao.maps) {
+      set("sdk", true, "성공");
+      kakao.maps.load(function () {
+        try {
+          var m = new kakao.maps.Map($("map"), {
+            center: new kakao.maps.LatLng(37.3399, 126.7330), level: 4,
+          });
+          new kakao.maps.Marker({ map: m, position: new kakao.maps.LatLng(37.3399, 126.7330) });
+          set("mapok", true, "성공");
+          fix("<b>정상입니다.</b> 지도가 아래에 보이면 고객앱·대시보드도 정상 동작합니다.<br>" +
+              "그래도 앱에서 안 보이면 브라우저 캐시를 지우고(Ctrl+F5) 다시 열어보세요.");
+        } catch (e) {
+          set("mapok", false, "실패");
+          fix("<b>지도 생성 실패:</b> " + e.message);
+        }
+      });
+      return;
+    }
+    if (window.__SDK__ === "error" || tries > 30) {
+      set("sdk", false, "실패");
+      set("mapok", false, "-");
+      fix(
+        "<b>SDK 스크립트를 불러오지 못했습니다.</b><br><br>" +
+        "가장 흔한 원인은 <b>도메인 미등록</b>입니다.<br>" +
+        "1. <a href='https://developers.kakao.com' target='_blank'>카카오 개발자센터</a> 접속<br>" +
+        "2. 내 애플리케이션 → 앱 선택 → <b>앱 설정 → 플랫폼</b><br>" +
+        "3. <b>Web 플랫폼 등록</b> → 사이트 도메인에 아래를 <b>모두</b> 추가:<br>" +
+        "&nbsp;&nbsp;<code>http://" + host + "</code><br>" +
+        "&nbsp;&nbsp;<code>http://localhost:8000</code><br><br>" +
+        "그 외 원인: 광고차단 확장 프로그램, 인터넷 연결, JS 키 오타(REST 키를 넣은 경우)"
+      );
+      return;
+    }
+    setTimeout(function () { step2(tries + 1); }, 200);
+  }
+  step2();
+</script>
+</body>
+</html>

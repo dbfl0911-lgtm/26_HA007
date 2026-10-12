@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>차량 모니터링 · ROBITA</title>
+  <link rel="stylesheet" href="/static/css/style.css?v={{ asset_ver }}" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> ROBITA</div>
+    <div class="topbar-right">
+      {% if llm_enabled %}
+        <span class="llm-badge on">● {{ llm_name }} 연결됨</span>
+      {% else %}
+        <span class="llm-badge off">● 규칙 기반 모드</span>
+      {% endif %}
+      <span class="user">{{ user.name }} 님</span>
+      <a href="/logout" class="btn-pill">로그아웃</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="mon-head">
+      <div class="back" onclick="location.href='/dashboard'" title="대시보드로">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <h1>차량 모니터링</h1>
+    </div>
+
+    <div class="mon-grid">
+      <!-- 좌측 차량 카드 -->
+      <aside class="mon-side">
+        <div class="card veh-card">
+          <div class="veh-avatar" id="m-avatar">🚖</div>
+          <div class="plate" id="m-plate">–</div>
+          <div class="stat" id="m-stat">불러오는 중…</div>
+          <div class="rating" id="m-rating">–</div>
+          <div class="stars" id="m-stars"></div>
+        </div>
+        <div class="card nav-card">
+          <div class="nav-item" onclick="document.getElementById('history-card').scrollIntoView({behavior:'smooth'})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            운행 기록
+          </div>
+          <div class="nav-item" onclick="alert('차량 관리 상세는 데모 범위 밖입니다.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l2-5a2 2 0 012-1h10a2 2 0 012 1l2 5"/><path d="M5 13h14v5H5z"/><circle cx="7.5" cy="18" r="1.3"/><circle cx="16.5" cy="18" r="1.3"/></svg>
+            차량 관리
+          </div>
+          <div class="nav-item" onclick="alert('문의·평가 내역은 데모 범위 밖입니다.')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            문의 · 평가 내역
+          </div>
+        </div>
+      </aside>
+
+      <!-- 메인 -->
+      <section class="mon-main">
+        <!-- 에이전트 진행 로그 -->
+        <div class="card agent-card">
+          <div class="card-title" style="margin-bottom:14px;">🧭 에이전트 진행 로그 <span class="agent-now-tag">현재 상태</span></div>
+          <div class="agent-track" id="agent-track">
+            <div class="empty-hint">에이전트 로그를 불러오는 중…</div>
+          </div>
+        </div>
+
+        <!-- 에이전트 활동 이력 (계속 누적, 새로고침해도 유지) -->
+        <div class="card agent-hist-card">
+          <div class="agent-hist-head">
+            <div class="card-title">🗂 에이전트 활동 이력</div>
+            <span class="agent-hist-note">실시간 누적 · 새로고침해도 사라지지 않습니다</span>
+          </div>
+          <div class="agent-history" id="agent-history">
+            <div class="empty-hint">활동 이력을 불러오는 중…</div>
+          </div>
+        </div>
+
+        <!-- 게이지 + 지도 -->
+        <div class="gauge-row">
+          <div class="card gauge-card">
+            <div class="card-title" style="justify-content:center;">배터리 잔량</div>
+            <div class="gauge-wrap">
+              <canvas id="g-battery"></canvas>
+              <div class="gauge-center"><div class="g-num" id="g-battery-num">–</div><div class="g-cap">battery</div></div>
+            </div>
+            <div class="gauge-desc" id="g-battery-desc"></div>
+          </div>
+          <div class="card gauge-card">
+            <div class="card-title" style="justify-content:center;">차량 컨디션 점수</div>
+            <div class="gauge-wrap">
+              <canvas id="g-cond"></canvas>
+              <div class="gauge-center"><div class="g-num" id="g-cond-num">–</div><div class="g-cap">condition</div></div>
+            </div>
+            <div class="gauge-desc" id="g-cond-desc"></div>
+          </div>
+          <div class="card gauge-card" style="text-align:left;">
+            <div class="card-title">실시간 위치</div>
+            <div id="mon-map" style="margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <!-- 운행 기록 -->
+        <div class="card history-card" id="history-card">
+          <div class="card-title" style="margin-bottom:6px;">운행 기록</div>
+          <table class="hist">
+            <thead><tr><th>시간</th><th>경로</th><th>요금</th><th>평가</th></tr></thead>
+            <tbody id="hist-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 에이전트 활동 상세 모달 (이력 항목 클릭 시 표시) -->
+  <div class="agent-modal" id="agent-modal" onclick="if(event.target===this)closeAgentModal()">
+    <div class="am-card">
+      <button class="am-close" onclick="closeAgentModal()" aria-label="닫기">✕</button>
+      <div class="am-head">
+        <span class="am-icon">🧭</span>
+        <div>
+          <div class="am-agent" id="am-agent">에이전트</div>
+          <span class="ah-state" id="am-state">진행</span>
+        </div>
+      </div>
+      <div class="am-desc" id="am-desc"></div>
+      <div class="am-field">
+        <span class="am-label">시각</span>
+        <span id="am-time">—</span>
+      </div>
+      <div class="am-field am-activity">
+        <span class="am-label">활동 내용</span>
+        <span id="am-text">—</span>
+      </div>
+      <div class="am-maint" id="am-maint" style="display:none;"></div>
+    </div>
+  </div>
+
+  <script>
+    window.APP = {
+      kakaoKey: "{{ kakao_key }}",
+      vehicleId: "{{ vehicle_id }}"
+    };
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_key }}&autoload=false"></script>
+  <script src="/static/js/monitor.js?v={{ asset_ver }}"></script>
+</body>
+</html>
